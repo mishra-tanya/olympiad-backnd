@@ -43,8 +43,13 @@ Route::post('/generate-certificate', [ResultController::class, 'generateCertific
 
 use App\Http\Controllers\ProfileController;
 
-Route::middleware('auth:sanctum')->put('/user/profile', [ProfileController::class, 'updateProfile']);
-Route::middleware('auth:sanctum')->get('/getuser/profile', [ProfileController::class, 'getProfile']);
+Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
+Route::get('/getuser/profile', [ProfileController::class, 'getProfile']);
 use App\Http\Controllers\ContactController;
 
 Route::post('/contact', [ContactController::class, 'contactMessages']);
+
+use App\Http\Controllers\DashboardController;
+Route::get('/getOverall', [DashboardController::class, 'getOverall']);
+Route::get('/getByClass', [DashboardController::class, 'getByClass']);
+
