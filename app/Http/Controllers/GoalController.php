@@ -17,7 +17,29 @@ class GoalController extends Controller
             return response()->json(['message' => 'No goals found for this class.'], 404);
         }
 
-        return response()->json($goals);
+        $leaderboard = DB::table('results')
+        ->join('users', 'results.user_id', '=', 'users.id')  
+        ->select('results.user_id', 'users.name', 'users.email','users.school', DB::raw('SUM(results.score) as total_score'))  
+        ->where('results.class_id', $className)
+        ->groupBy('results.user_id', 'users.name', 'users.email','users.school') 
+        ->orderByDesc('total_score')
+        ->get();
+    
+    // dd($leaderboard, $goals);
+    
+    $rank = 1;
+        $leaderboard = $leaderboard->map(function ($user) use (&$rank) {
+            $user->rank = $rank++;
+            return $user;
+        });
+
+        return response()->json([
+            'data' => [
+                'goal' => $goals,
+                'leaderboard' => $leaderboard
+            ]
+        ]);
+        // return response()->json($goals);
      }
 
      public function getTests($className, $goal)
@@ -31,16 +53,16 @@ class GoalController extends Controller
          if ($tests->isEmpty()) {
              return response()->json(['message' => 'No tests found for this goal.'], 404);
          }
-     
          $leaderboard = DB::table('results')
-         ->select('user_id', DB::raw('SUM(score) as total_score'))
-         ->where('goal_id', $goal)
-         ->where('class_id', $className)
-         ->groupBy('user_id')
+         ->join('users', 'results.user_id', '=', 'users.id')  
+         ->select('results.user_id', 'users.name', 'users.email','users.school', DB::raw('SUM(results.score) as total_score'))  
+         ->where('results.goal_id', $goal)
+         ->where('results.class_id', $className)
+         ->groupBy('results.user_id', 'users.name', 'users.email','users.school') 
          ->orderByDesc('total_score')
          ->get();
      
-    //  dd($leaderboard,$tests);
+    //  dd($leaderboard, $tests);
      
      $rank = 1;
          $leaderboard = $leaderboard->map(function ($user) use (&$rank) {
