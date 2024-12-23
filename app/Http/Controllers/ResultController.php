@@ -7,6 +7,7 @@ use App\Models\Result;
 use App\Models\Certificate;
 use App\Models\TestQuestions;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class ResultController extends Controller
@@ -105,15 +106,55 @@ class ResultController extends Controller
 
 public function generateCertificate(Request $request)
 {
-    $certificateId = Str::random(10); 
+    $user=Auth::guard('api')->user();
+    $userId = $user->id; 
+    $username = ucwords($user->name);
+    $userSchool = ucwords($user->school);
+  
+    // class_4-5
+    // dd($username, $userSchool,$class);
+    $type = $request->input('type'); 
+    $classGr=$request->input('classGr');
 
-    $certificate = Certificate::create([
-        'certificate_id' => $certificateId,
-        'user_id' => auth()->id(), 
-        'certificate_content' => 'This is the certificate content', 
-    ]);
+    $certificate = Certificate::where('user_id', $userId)->where('certificate_type', $type)
+    ->where('certificate_content',$classGr)
+    ->first();
 
-    return redirect()->route('certificate.show', ['certificate_id' => $certificateId]);
+    if ($certificate) {
+        return response()->json([
+            'certificateNumber' => $certificate->certificate_id,
+            'existing' => true,
+            'date' => $certificate->created_at->format('Y-m-d'),
+            'certificateId' => $certificate->id,
+            'userId' => $certificate->user_id,
+            'certificate_type' => $certificate->certificate_type,
+            'username'=>$username,
+            'userSchool'=>$userSchool,
+            'classGroup'=>$certificate->certificate_content,
+        ]);
+    } else {
+        $certificateNumber = 'CERT-' . strtoupper(uniqid()); 
+        $certificate = Certificate::create([
+            'user_id' => $userId,
+            'certificate_type' => $type,
+            'certificate_id' => $certificateNumber,
+            'certificate_content'=>$classGr
+        ]);
+
+        return response()->json([
+           'certificateNumber' => $certificate->certificate_id,
+            'existing' => true,
+            'date' => $certificate->created_at->format('Y-m-d'),
+            'certificateId' => $certificate->id,
+            'userId' => $certificate->user_id,
+            'certificate_type' => $certificate->certificate_type,
+            'username'=>$username,
+            'userSchool'=>$userSchool,
+            'classGroup'=>$certificate->certificate_content,
+
+        ]);
+    }
+
 }
 
 public function show($certificate_id)

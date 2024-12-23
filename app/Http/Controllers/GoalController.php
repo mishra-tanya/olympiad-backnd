@@ -7,6 +7,8 @@ use App\Models\Goals;
 use App\Models\Tests;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Auth;
+
 class GoalController extends Controller
 {
      public function getGoals($className){
@@ -44,6 +46,13 @@ class GoalController extends Controller
 
      public function getTests($className, $goal)
      {
+        $user = Auth::guard('sanctum')->user();
+        $userId=$user->id;
+
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+        
          $classNameNew = "class_" . $className;
      
          $tests = Tests::where('class_id', $classNameNew)
@@ -69,11 +78,23 @@ class GoalController extends Controller
              $user->rank = $rank++;
              return $user;
          });
+
+         $results = DB::table('results')
+         ->where('results.goal_id', $goal)
+         ->where('results.class_id', $className)
+         ->where('results.user_id',$userId)
+         ->get();
+ 
+     $testsWithStatus = $tests->map(function ($test) use ($results, $goal, $className) {
+         $test->status = $results->where('test_id', $test->id)->isNotEmpty() ? 'attempted' : 'not attempted';
+         return $test;
+     });
      
          return response()->json([
             'data' => [
                 'tests' => $tests,
-                'leaderboard' => $leaderboard
+                'leaderboard' => $leaderboard,
+                'testsWithStatus'=>$testsWithStatus
             ]
         ]);
      }

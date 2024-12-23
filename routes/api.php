@@ -53,3 +53,6 @@ use App\Http\Controllers\DashboardController;
 Route::get('/getOverall', [DashboardController::class, 'getOverall']);
 Route::get('/getByClass', [DashboardController::class, 'getByClass']);
 
+use App\Http\Controllers\CertificateVerifyController;
+Route::post('/certificateVerification/{certificateId}',[CertificateVerifyController::class,'verifyCertificate']);
+

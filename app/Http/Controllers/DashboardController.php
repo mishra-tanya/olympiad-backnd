@@ -24,27 +24,47 @@ class DashboardController extends Controller
    }
 
    public function getByClass()
-    {
-        $user = Auth::guard('api')->user();
-
-        if (!$user) {
-            return response()->json(['message' => 'User not authenticated'], 401);
-        }
-        $classNames = ['4-5', '6-8', '9-10', '11-12'];
-        $classResults = [];
-    
-        foreach ($classNames as $className) {
-            $results = $user->results()->where('class_id', $className)->get();
-            $classResults[$className] = [
-                'total_score' => $results->sum('score'),
-                'results' => $results,
-            ];
-        }
-    
-        return response()->json([
-            'user_id' => $user->id,
-            'class_results' => $classResults,
-        ]);
-    }
+   {
+       $user = Auth::guard('api')->user();
+   
+       if (!$user) {
+           return response()->json(['message' => 'User not authenticated'], 401);
+       }
+   
+       $classNames = ['4-5', '6-8', '9-10', '11-12'];
+       $classResults = [];
+   
+       foreach ($classNames as $className) {
+           $results = $user->results()
+               ->where('class_id', $className)
+               ->with(['goal', 'test']) 
+               ->get();
+   
+           $classResults[$className] = [
+               'total_score' => $results->sum('score'),
+               'results' => $results->map(function ($result) {
+                   return [
+                       'id' => $result->id,
+                       'user_id' => $result->user_id,
+                       'class_id'=>$result->class_id,
+                       'goal_id' => $result->goal_id,
+                       'goal_name' => $result->goal ? $result->goal->goal_name : null,  
+                       'test_id' => $result->test_id,
+                       'test_name' => $result->test ? $result->test->test_name : null,  
+                       'score' => $result->score,
+                       'answers' => json_decode($result->answers), 
+                       'created_at' => $result->created_at,
+                       'updated_at' => $result->updated_at,
+                   ];
+               }),
+           ];
+       }
+   
+       return response()->json([
+           'user_id' => $user->id,
+           'class_results' => $classResults,
+       ]);
+   }
+   
 
 }
