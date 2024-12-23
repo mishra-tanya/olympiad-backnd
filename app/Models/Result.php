@@ -24,4 +24,13 @@ class Result extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function goal()
+    {
+        return $this->belongsTo(Goals::class);
+    }
+
+    public function test()
+    {
+        return $this->belongsTo(Tests::class);
+    }
 }
