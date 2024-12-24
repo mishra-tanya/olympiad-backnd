@@ -12,4 +12,13 @@ class Goals extends Model
         'goal_name',
         'description',
     ];
+    // for test questions 
+    public function testQuestions()
+    {
+        return $this->hasMany(TestQuestions::class, 'goal_id');
+    }
+    public function test()
+    {
+        return $this->hasMany(Tests::class, 'goal_id');
+    }
 }

@@ -38,6 +38,7 @@ class DashboardController extends Controller
            $results = $user->results()
                ->where('class_id', $className)
                ->with(['goal', 'test']) 
+               ->orderBy('created_at', 'desc')
                ->get();
    
            $classResults[$className] = [

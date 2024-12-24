@@ -31,4 +31,17 @@ class CertificateVerifyController extends Controller
         }
    }
 
+   public function getAllCertificates(){
+        $user=Auth::guard('api')->user();
+        $userId=$user->id;
+        $userName=ucwords($user->name);
+
+        $certificate=Certificate::where('user_id',$userId)
+        ->get();
+        return response()->json([
+            'userName' => $userName,
+            'certificate' => $certificate
+        ]);
+   }
+
 }

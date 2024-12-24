@@ -36,12 +36,13 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
+            $user = Auth::guard('api')->user();
             $token = $user->createToken('LocalAppName')->plainTextToken;
-    
+            $role = $user->role;
             return response()->json([
                 'message' => 'Login successful',
                 'token' => $token,
+                'role' => $role,
             ]);
         }
     else {

@@ -25,7 +25,8 @@ class User extends Authenticatable
          'class' ,
             'school',
             'country',
-            'address'
+            'address',
+            'role',
     ];
 
     /**
@@ -54,5 +55,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Result::class);
     }
+    // public function isAdmin()
+    // {
+    //     return $this->role === 'admin';
+    // }
 
 }
+
