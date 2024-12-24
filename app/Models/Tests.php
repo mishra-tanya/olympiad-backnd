@@ -13,4 +13,14 @@ class Tests extends Model
         'test_name',
         'description'
     ];
+    // for test questions 
+    public function testQuestions()
+    {
+        return $this->hasMany(TestQuestions::class, 'test_id');
+    }
+    
+    public function goal()
+    {
+        return $this->belongsTo(Goals::class, 'goal_id','id');
+    }
 }
