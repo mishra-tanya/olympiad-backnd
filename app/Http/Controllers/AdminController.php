@@ -27,16 +27,32 @@ class AdminController extends Controller
     }
 
     // track
-    public function getUserRegistrations()
+    public function getUserRegistrations(Request $request)
     {
+        $days = $request->input('days', 7);  
+    
+        $startDate = Carbon::now()->subDays($days);
+        $endDate = Carbon::now();
+    
         $data = User::select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
-                    ->where('created_at', '>=', Carbon::now()->subDays(7))
+                    ->whereBetween('created_at', [$startDate, $endDate])
                     ->groupBy('date')
                     ->orderBy('date', 'asc')
                     ->get();
-
-        return response()->json($data);
+    
+        $dateRange = collect();
+        $currentDate = $startDate->copy();
+        while ($currentDate->lte($endDate)) {
+            $dateString = $currentDate->format('Y-m-d');
+            $count = $data->firstWhere('date', $dateString)->count ?? 0;
+            $dateRange->push(['date' => $dateString, 'count' => $count]);
+            $currentDate->addDay();
+        }
+    
+        return response()->json($dateRange);
     }
+    
+    
     //certiifcates
     public function getAllCertificate(){
         $certificates = Certificate::with(['user:id,name,email'])
@@ -109,9 +125,11 @@ class AdminController extends Controller
                  'correct_answer' => $question->correct_answer,
              ];
          });
+         $totalQuestionsCount = TestQuestions::count();
      
          return response()->json([
-             'testQuestions' => $testQuestions
+             'testQuestions' => $testQuestions,
+             'totalQuestionsCount'=>$totalQuestionsCount
          ]);
      }
 
