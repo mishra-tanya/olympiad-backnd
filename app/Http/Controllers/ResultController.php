@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 
 use App\Models\Result;
 use App\Models\Certificate;
+use App\Models\Goals;
+use App\Models\Tests;
 use App\Models\TestQuestions;
 
 use Illuminate\Support\Facades\Auth;
@@ -64,6 +66,9 @@ class ResultController extends Controller
         if (!$result) {
             return response()->json(['error' => 'Result not found'], 404);
         }
+        $goal=Goals::where('id',$goalId)->first();
+        $test=Tests::where('id',$testId)->first();
+
         // dd($result->answers);
         $answers = json_decode($result->answers, true);
         $score = 0;
@@ -100,6 +105,8 @@ class ResultController extends Controller
             'score' => $score,
             'total_questions' => count($questions),
             'detailed_results' => $detailedResults,
+            'goalN'=>$goal,
+            'testN'=>$test,
         ]);    
     }
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ForgotPasswordController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -29,6 +30,10 @@ Route::get('/sanctum/csrf-cookie', function (Request $request) {
 });
 Route::post('/contact', [ContactController::class, 'contactMessages']);
 Route::get('/certificate/{certificate_id}', [ResultController::class, 'show'])->name('certificate.show');
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
 //user authentication required i.e. user routes
 Route::middleware('auth:sanctum')->group(function () {

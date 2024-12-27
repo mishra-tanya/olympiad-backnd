@@ -21,9 +21,10 @@ class GoalController extends Controller
 
         $leaderboard = DB::table('results')
         ->join('users', 'results.user_id', '=', 'users.id')  
-        ->select('results.user_id', 'users.name', 'users.email','users.school', DB::raw('SUM(results.score) as total_score'))  
+        ->select('results.user_id', 'users.name', 'users.email','users.school', 
+        DB::raw('CAST(results.goal_id AS UNSIGNED) as goal_id'), DB::raw('SUM(results.score) as total_score'))  
         ->where('results.class_id', $className)
-        ->groupBy('results.user_id', 'users.name', 'users.email','users.school') 
+        ->groupBy('results.user_id', 'users.name', 'users.email','users.school', 'results.goal_id',) 
         ->orderByDesc('total_score')
         ->get();
     
