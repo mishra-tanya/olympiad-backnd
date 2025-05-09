@@ -11,6 +11,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminDashController;
 use App\Http\Controllers\ForgotPasswordController;
 
 // Route::get('/user', function (Request $request) {
@@ -32,8 +33,8 @@ Route::post('/contact', [ContactController::class, 'contactMessages']);
 Route::get('/certificate/{certificate_id}', [ResultController::class, 'show'])->name('certificate.show');
 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
+
+Route::get('/goal/{goal}',[GoalController::class,'goalName']);
 
 //user authentication required i.e. user routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -77,5 +78,13 @@ Route::get('/getTestQuestions',[AdminController::class,'getTestQuestions']);
 Route::get('/contact',[AdminController::class,'contact']);
 Route::get('/dashboard',[AdminController::class,'dashboard']);
 Route::get('/track', [AdminController::class, 'getUserRegistrations']);
+
+Route::get('/geographic-distribution', [AdminDashController::class, 'getUserCountryDistribution']);
+Route::get('/by-class', [AdminDashController::class, 'getUserClass']);
+Route::get('/user-segmentation', [AdminDashController::class, 'behaviorDistribution']);
+Route::get('/topPerformers', [AdminDashController::class, 'topPerformers']);
+Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
+Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
+Route::get('/getUserCompletedGoals', [AdminDashController::class, 'getUserCompletedGoals']);
 
 });

@@ -89,10 +89,10 @@ class ResultController extends Controller
                 'question_id' => $question->id,
                 'question' => $question->question,
                 'options' => [
-                    'a' => $question->option_a,
-                    'b' => $question->option_b,
-                    'c' => $question->option_c,
-                    'd' => $question->option_d,
+                    'A' => $question->option_a,
+                    'B' => $question->option_b,
+                    'C' => $question->option_c,
+                    'D' => $question->option_d,
                 ],
                 'correct_answer' => $question->correct_answer,
                 'user_answer' => $userAnswer,
@@ -118,7 +118,7 @@ public function generateCertificate(Request $request)
     $username = ucwords($user->name);
     $userSchool = ucwords($user->school);
   
-    // class_4-5
+    // class_4
     // dd($username, $userSchool,$class);
     $type = $request->input('type'); 
     $classGr=$request->input('classGr');

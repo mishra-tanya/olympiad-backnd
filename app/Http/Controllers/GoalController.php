@@ -100,4 +100,17 @@ class GoalController extends Controller
         ]);
      }
      
+     public function goalName($goal) {
+        $goalData = Goals::where('id', $goal)->first(); 
+    
+        if (!$goalData) {
+            return response()->json([
+                "error" => "Goal not found"
+            ], 404);
+        }
+    
+        return response()->json([
+            "goal" => $goalData->description
+        ]);
+    }
 }

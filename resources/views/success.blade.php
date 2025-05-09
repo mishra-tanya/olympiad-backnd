@@ -8,6 +8,6 @@
 </head>
 <body>
     <p>Password Reset Done Successfully </p>
-    <a href="/api/login">Click here to redirect to login page</a>
+    <a href="/login">Click here to redirect to login page</a>
 </body>
 </html>

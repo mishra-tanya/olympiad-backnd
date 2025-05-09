@@ -12,6 +12,7 @@ use App\Models\TestQuestions;
 use App\Models\Contact;
 use Carbon\Carbon;
 
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -20,12 +21,64 @@ class AdminController extends Controller
     {
         $users = User::where('role', 'user')
         ->orderBy('created_at', 'desc')->get();
+        
+        $result=[];
+        
+        foreach($users as $user){
+            $userId=$user->id;
+
+            $result[]=[
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'country' => $user->country,
+                'address' => $user->address,
+                'school' => $user->school,
+                'class' => $user->class,
+                'email_verified_at' => $user->email_verified_at,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'phone_number' => $user->phone_number,
+                'role' => $user->role,
+                'goalCount' => $this->getCountGoal($userId),
+                'testCount' => $this->getCountTest($userId),
+            ];
+        }
 
         return response()->json([
-            'user'=>$users
+            'user'=>$result,
+            // 'testCount'=>$testsCount,
+            // 'goalCount'=>$goalsCount
         ]);
     }
 
+    // count how many goals user has completed
+    public function getCountGoal($userId)
+    {
+        $completedGoals = Result::select('goal_id', 'class_id')
+            ->where('user_id', $userId)
+            ->groupBy('goal_id', 'class_id')
+            ->havingRaw('COUNT(*) >= 3')
+            ->get();
+
+    
+        $results = $completedGoals->map(function ($item) {
+            $goal = Goals::find($item->goal_id);
+            return [
+                'goal_id' => $item->goal_id,
+                'goal_name' => $goal ? $goal->description : null,
+                'class_id' => $item->class_id,
+            ];
+        });
+
+        return $results;
+    }
+    
+    // count how many tests user has done
+    public function getCountTest($userId){
+        $count= Result::where('user_id',$userId)->count();
+        return $count;
+     }
     // track
     public function getUserRegistrations(Request $request)
     {
