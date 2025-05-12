@@ -13,6 +13,12 @@ use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminDashController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\RazorpayController;
+
+
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -63,6 +69,14 @@ Route::get('/getByClass', [DashboardController::class, 'getByClass']);
 Route::post('/certificateVerification/{certificateId}',[CertificateVerifyController::class,'verifyCertificate']);
 Route::get('/getAllCertificates',[CertificateVerifyController::class,'getAllCertificates']);
 
+Route::get('/check-class-completion', [CertificateController::class, 'checkClassCompletion']);
+Route::get('/check-goal-completion', [CertificateController::class, 'checkGoalCompletion']);
+Route::get('/check-class-payment', [CertificateController::class, 'checkClassPayment']);
+
+Route::post('/create-order', [RazorpayController::class, 'createOrder']);
+Route::post('/payment-success', [RazorpayController::class, 'handlePaymentSuccess']);
+Route::get('/check-class-payment', [CertificateController::class, 'checkClassPayment']);
+
 });
 
 //admin role ; admin authentication required
@@ -86,5 +100,8 @@ Route::get('/topPerformers', [AdminDashController::class, 'topPerformers']);
 Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
 Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
 Route::get('/getUserCompletedGoals', [AdminDashController::class, 'getUserCompletedGoals']);
+
+Route::get('/users/emails', [UserController::class, 'getEmails']);
+Route::post('/send-email', [EmailController::class, 'send']);
 
 });

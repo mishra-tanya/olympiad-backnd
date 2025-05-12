@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Result;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\DB;
 
 class AdminDashController extends Controller
 {
@@ -33,16 +33,29 @@ class AdminDashController extends Controller
     }
 
     // get users completed all goals
-    public function getUserCompletedGoals()
-    {
-        $data = User::select('class', DB::raw('COUNT(*) as count'))
-        ->where('role', 'user')
-        ->groupBy('class')
-        ->havingRaw('COUNT(*) = 51') 
-        ->get();
+   public function getUserCompletedGoals()
+{
+    $data = DB::table('results')
+        ->select('class_id', DB::raw('COUNT(*) as users_with_51_tests'))
+        ->fromSub(function ($query) {
+            $query->from('results')
+                ->select('user_id', 'class_id', DB::raw('COUNT(*) as test_count'))
+                ->groupBy('user_id', 'class_id')
+                ->having('test_count', '=', 51);
+        }, 'subquery')
+        ->groupBy('class_id')
+        ->pluck('users_with_51_tests', 'class_id'); 
 
-        return response()->json($data);
-    }
+    $final = collect(range(4, 10))->map(function ($classId) use ($data) {
+        return [
+            'class_id' => $classId,
+            'users_with_51_tests' => $data[$classId] ?? 0
+        ];
+    });
+
+    return response()->json($final);
+}
+
 
     // get behavior
     public function behaviorDistribution()
