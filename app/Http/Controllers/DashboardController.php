@@ -31,7 +31,7 @@ class DashboardController extends Controller
            return response()->json(['message' => 'User not authenticated'], 401);
        }
    
-       $classNames = ['4-5', '6-8', '9-10', '11-12'];
+       $classNames = ['4', '5', '6', '7','8','9','10'];
        $classResults = [];
    
        foreach ($classNames as $className) {
@@ -49,7 +49,7 @@ class DashboardController extends Controller
                        'user_id' => $result->user_id,
                        'class_id'=>$result->class_id,
                        'goal_id' => $result->goal_id,
-                       'goal_name' => $result->goal ? $result->goal->goal_name : null,  
+                       'goal_name' => $result->goal ? $result->goal->description : null,  
                        'test_id' => $result->test_id,
                        'test_name' => $result->test ? $result->test->test_name : null,  
                        'score' => $result->score,

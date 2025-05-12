@@ -11,7 +11,14 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminDashController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\RazorpayController;
+
+
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -32,8 +39,8 @@ Route::post('/contact', [ContactController::class, 'contactMessages']);
 Route::get('/certificate/{certificate_id}', [ResultController::class, 'show'])->name('certificate.show');
 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
+
+Route::get('/goal/{goal}',[GoalController::class,'goalName']);
 
 //user authentication required i.e. user routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -62,6 +69,14 @@ Route::get('/getByClass', [DashboardController::class, 'getByClass']);
 Route::post('/certificateVerification/{certificateId}',[CertificateVerifyController::class,'verifyCertificate']);
 Route::get('/getAllCertificates',[CertificateVerifyController::class,'getAllCertificates']);
 
+Route::get('/check-class-completion', [CertificateController::class, 'checkClassCompletion']);
+Route::get('/check-goal-completion', [CertificateController::class, 'checkGoalCompletion']);
+Route::get('/check-class-payment', [CertificateController::class, 'checkClassPayment']);
+
+Route::post('/create-order', [RazorpayController::class, 'createOrder']);
+Route::post('/payment-success', [RazorpayController::class, 'handlePaymentSuccess']);
+Route::get('/check-class-payment', [CertificateController::class, 'checkClassPayment']);
+
 });
 
 //admin role ; admin authentication required
@@ -77,5 +92,16 @@ Route::get('/getTestQuestions',[AdminController::class,'getTestQuestions']);
 Route::get('/contact',[AdminController::class,'contact']);
 Route::get('/dashboard',[AdminController::class,'dashboard']);
 Route::get('/track', [AdminController::class, 'getUserRegistrations']);
+
+Route::get('/geographic-distribution', [AdminDashController::class, 'getUserCountryDistribution']);
+Route::get('/by-class', [AdminDashController::class, 'getUserClass']);
+Route::get('/user-segmentation', [AdminDashController::class, 'behaviorDistribution']);
+Route::get('/topPerformers', [AdminDashController::class, 'topPerformers']);
+Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
+Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
+Route::get('/getUserCompletedGoals', [AdminDashController::class, 'getUserCompletedGoals']);
+
+Route::get('/users/emails', [UserController::class, 'getEmails']);
+Route::post('/send-email', [EmailController::class, 'send']);
 
 });
