@@ -7,6 +7,8 @@ use App\Models\User;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
 
 class AuthController extends Controller
 {
@@ -28,6 +30,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        Mail::to($user->email)->queue(new WelcomeMail($user));
         return response()->json(['message' => 'User registered successfully!', 'user' => $user], 201);
     }
 
@@ -42,6 +45,7 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Login successful',
                 'token' => $token,
+                'user_id' => $user->id,
                 'role' => $role,
             ]);
         }
