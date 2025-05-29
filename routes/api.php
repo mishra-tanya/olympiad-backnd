@@ -17,6 +17,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\RazorpayController;
+use App\Http\Controllers\PhonePeController;
 
 
 
@@ -39,6 +40,8 @@ Route::post('/contact', [ContactController::class, 'contactMessages']);
 Route::get('/certificate/{certificate_id}', [ResultController::class, 'show'])->name('certificate.show');
 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
 Route::get('/goal/{goal}',[GoalController::class,'goalName']);
 
@@ -66,7 +69,6 @@ Route::get('/getuser/profile', [ProfileController::class, 'getProfile']);
 Route::get('/getOverall', [DashboardController::class, 'getOverall']);
 Route::get('/getByClass', [DashboardController::class, 'getByClass']);
 
-Route::post('/certificateVerification/{certificateId}',[CertificateVerifyController::class,'verifyCertificate']);
 Route::get('/getAllCertificates',[CertificateVerifyController::class,'getAllCertificates']);
 
 Route::get('/check-class-completion', [CertificateController::class, 'checkClassCompletion']);
@@ -75,9 +77,18 @@ Route::get('/check-class-payment', [CertificateController::class, 'checkClassPay
 
 Route::post('/create-order', [RazorpayController::class, 'createOrder']);
 Route::post('/payment-success', [RazorpayController::class, 'handlePaymentSuccess']);
+
 Route::get('/check-class-payment', [CertificateController::class, 'checkClassPayment']);
+Route::post('/upload-certificate', [CertificateController::class, 'uploadCertificate']);
+Route::get('/certificates/{filename}', [CertificateController::class, 'showCertificate'])->name('certificates.show');
+Route::get('/getAllUserGoalsCompleted', [CertificateController::class, 'checkAllGoalCompletion'])->name('certificates.show');
+
+Route::post('/phonepe-initiate', [PhonePeController::class, 'initiate']);
 
 });
+Route::post('/phonepe-callback', [PhonePeController::class, 'callback'])->name('phonepe.callback');
+Route::post('/certificateVerification/{certificateId}',[CertificateVerifyController::class,'verifyCertificate']);
+
 
 //admin role ; admin authentication required
 Route::middleware('admin','auth:sanctum')->group(function () {
@@ -102,6 +113,9 @@ Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
 Route::get('/getUserCompletedGoals', [AdminDashController::class, 'getUserCompletedGoals']);
 
 Route::get('/users/emails', [UserController::class, 'getEmails']);
+
 Route::post('/send-email', [EmailController::class, 'send']);
+
+Route::get('/get-payments', [RazorpayController::class, 'getPayments']);
 
 });

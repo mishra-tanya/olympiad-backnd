@@ -79,4 +79,17 @@ class RazorpayController extends Controller
             return response()->json(['status' => 'Payment Failed', 'error' => $e->getMessage()]);
         }
     }
+
+    public function getPayments(Request $request){
+        $perPage = $request->input('per_page', 30);
+
+        $payments = Payment::with('user:id,name,email') 
+                        ->latest()
+                        ->paginate($perPage);
+
+        return response()->json([
+            'payments' => $payments,
+        ]);
+
+    }
 }
