@@ -18,12 +18,16 @@ use App\Http\Controllers\EmailController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\PhonePeController;
+use App\Http\Controllers\AchieverController;
 
 
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
+
+Route::get('/achievers', [AchieverController::class, 'index']);
+Route::get('/achievers/{achiever}', [AchieverController::class, 'show']);
 
 
 //public route
@@ -89,10 +93,15 @@ Route::post('/phonepe-initiate', [PhonePeController::class, 'initiate']);
 Route::post('/phonepe-callback', [PhonePeController::class, 'callback'])->name('phonepe.callback');
 Route::post('/certificateVerification/{certificateId}',[CertificateVerifyController::class,'verifyCertificate']);
 
+Route::get('/users/emails', [UserController::class, 'getEmails']);
 
 //admin role ; admin authentication required
 Route::middleware('admin','auth:sanctum')->group(function () {
 
+Route::post('/achievers', [AchieverController::class, 'store']);
+Route::put('/achievers/{achiever}', [AchieverController::class, 'update']);
+Route::delete('/achievers/{achiever}', [AchieverController::class, 'destroy']);
+Route::post('/make-user-paid', [AdminController::class, 'makeUserPaid']);
 Route::get('/getUsers',[AdminController::class,'getUsersWithUserRole']);
 Route::get('/getAllCertificate',[AdminController::class,'getAllCertificate']);
 Route::get('/getCertificateUser/{userId}',[AdminController::class,'getCertificateUser']);
@@ -112,7 +121,6 @@ Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
 Route::get('/getTestsGiven', [AdminDashController::class, 'getTestsGiven']);
 Route::get('/getUserCompletedGoals', [AdminDashController::class, 'getUserCompletedGoals']);
 
-Route::get('/users/emails', [UserController::class, 'getEmails']);
 
 Route::post('/send-email', [EmailController::class, 'send']);
 

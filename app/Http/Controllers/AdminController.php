@@ -10,12 +10,33 @@ use App\Models\Goals;
 use App\Models\Tests;
 use App\Models\TestQuestions;
 use App\Models\Contact;
+use App\Models\Payment;
+
 use Carbon\Carbon;
 
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
+    public function makeUserPaid(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+
+        $classId = preg_replace('/\D/', '', $user->class); 
+
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'razorpay_order_id' => 'by-admin-manual',
+            'razorpay_payment_id' => 'by-admin-payment',
+            'razorpay_signature' => 'admin',
+            'amount' => 0,
+            'status' => 'completed',
+            'payment_type' => 'Certificate for class ' . $classId,
+        ]);
+
+        return response()->json(['message' => 'Payment marked as completed by admin']);
+    }
+
     //users
     public function getUsersWithUserRole()
     {
@@ -26,6 +47,7 @@ class AdminController extends Controller
         
         foreach($users as $user){
             $userId=$user->id;
+            $paymentCount = $user->payments()->count();
 
             $result[]=[
                 'id' => $user->id,
@@ -40,6 +62,7 @@ class AdminController extends Controller
                 'updated_at' => $user->updated_at,
                 'phone_number' => $user->phone_number,
                 'role' => $user->role,
+                'payments_count'=>$paymentCount,
                 'goalCount' => $this->getCountGoal($userId),
                 'testCount' => $this->getCountTest($userId),
             ];
