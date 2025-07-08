@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-
+use App\Jobs\SendBulkEmail;
 
 class EmailController extends Controller
 {
-
     public function send(Request $request)
     {
         $validated = $request->validate([
@@ -17,13 +16,11 @@ class EmailController extends Controller
             'message' => 'required|string',
         ]);
 
-        foreach ($validated['emails'] as $email) {
-            Mail::raw($validated['message'], function ($mail) use ($email, $validated) {
-                $mail->to($email)->subject($validated['subject']);
-            });
+        foreach ($validated['emails'] as $i => $email) {
+            SendBulkEmail::dispatch($email, $validated['message'], $validated['subject'])
+                ->delay(now()->addSeconds($i * 20));
         }
 
-        return response()->json(['status' => 'Emails sent successfully!']);
+        return response()->json(['status' => 'Emails queued with delay!']);
     }
-
 }
