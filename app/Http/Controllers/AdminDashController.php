@@ -100,16 +100,37 @@ class AdminDashController extends Controller
     }
     
     // top 10 performers
-    public function topPerformers(){
-        $topPerformers = User::withAvg('results', 'score') 
-        ->having('results_avg_score', '>=', 8)         
-        ->orderByDesc('results_avg_score')     
-        ->take(10)                                  
-        ->get(['id', 'name', 'email']);      
+    // public function topPerformers(){
+    //     $topPerformers = User::withAvg('results', 'score') 
+    //     ->having('results_avg_score', '>=', 10)         
+    //     ->orderByDesc('results_avg_score')     
+    //     ->get(['id', 'name', 'email']);      
+
+    //     return response()->json($topPerformers);
+    // }
+
+    public function topPerformers()
+    {
+        $topPerformers = User::withAvg('results', 'score')
+            ->with(['results' => function ($query) {
+                $query->latest('created_at')->limit(1);
+            }])
+            ->having('results_avg_score', '>=', 10)
+            ->orderByDesc('results_avg_score')
+            ->get(['id', 'name', 'email','school'])
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'school'=> $user->school,
+                    'email' => $user->email,
+                    'average_score' => round($user->results_avg_score, 2),
+                    'last_test_date' => optional($user->results->first())->created_at, 
+                ];
+            });
 
         return response()->json($topPerformers);
     }
-
 
 
     // tracking daily tests
