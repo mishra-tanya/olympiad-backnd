@@ -30,7 +30,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Mail::to($user->email)->queue(new WelcomeMail($user));
+        Mail::to($user->email)->queue(new WelcomeMail($user));
         return response()->json(['message' => 'User registered successfully!', 'user' => $user], 201);
     }
 

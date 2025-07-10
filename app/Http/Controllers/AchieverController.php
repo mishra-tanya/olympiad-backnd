@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Achiever;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class AchieverController extends Controller
 {
@@ -13,9 +14,11 @@ class AchieverController extends Controller
      */
     public function index()
     {
-        return response()->json(
-            Achiever::orderBy('week_ending', 'desc')->get()
-        );
+        $achievers = Cache::remember('achievers_list', now()->addDays(7), function () {
+            return Achiever::orderBy('week_ending', 'desc')->get();
+        });
+
+        return response()->json($achievers);
     }
 
     /**
@@ -39,6 +42,8 @@ class AchieverController extends Controller
         }
 
         $achiever = Achiever::create($validated);
+        Cache::forget('achievers_list');
+        Cache::put('achievers_list', Achiever::orderBy('week_ending', 'desc')->get(), now()->addDays(7));
 
         return response()->json($achiever, 201);
     }
@@ -74,8 +79,9 @@ class AchieverController extends Controller
             $path = $request->file('school_logo')->store('logos', 'public');
             $validated['school_logo'] = '/storage/' . $path;
         }
-
         $achiever->update($validated);
+        Cache::forget('achievers_list');
+        Cache::put('achievers_list', Achiever::orderBy('week_ending', 'desc')->get(), now()->addDays(7));
 
         return response()->json($achiever);
     }
@@ -91,6 +97,9 @@ class AchieverController extends Controller
         }
 
         $achiever->delete();
+        Cache::forget('achievers_list');
+        Cache::put('achievers_list', Achiever::orderBy('week_ending', 'desc')->get(), now()->addDays(7));
+
         return response()->json(null, 204);
     }
 }
