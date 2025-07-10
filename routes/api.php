@@ -19,42 +19,30 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\PhonePeController;
 use App\Http\Controllers\AchieverController;
+use App\Http\Controllers\CsrfController;
 
-
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
+//public route
 
 Route::get('/achievers', [AchieverController::class, 'index']);
 Route::get('/achievers/{achiever}', [AchieverController::class, 'show']);
 
-
-//public route
-Route::get('/welcome', function () {
-    return response()->json(['message' => 'Welcome to the Laravel API!']);
-});
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name("login"); 
-Route::get('/sanctum/csrf-cookie', function (Request $request) {
-    return response()->json(['message' => 'CSRF token set']);
-});
+
+Route::get('/sanctum/csrf-cookie',[CsrfController::class, 'getCsrfCookie']);
+
 Route::post('/contact', [ContactController::class, 'contactMessages']);
+
 Route::get('/certificate/{certificate_id}', [ResultController::class, 'show'])->name('certificate.show');
 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
 Route::get('/goal/{goal}',[GoalController::class,'goalName']);
 
 //user authentication required i.e. user routes
 Route::middleware('auth:sanctum')->group(function () {
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/user', [UserController::class,'getUser']);
 
 Route::get('/class/{className}',[GoalController::class,'getGoals']);
 Route::get('/class/{className}/goal/{goal}',[GoalController::class,'getTests']);
@@ -84,8 +72,8 @@ Route::post('/payment-success', [RazorpayController::class, 'handlePaymentSucces
 
 Route::get('/check-class-payment', [CertificateController::class, 'checkClassPayment']);
 Route::post('/upload-certificate', [CertificateController::class, 'uploadCertificate']);
-Route::get('/certificates/{filename}', [CertificateController::class, 'showCertificate'])->name('certificates.show');
-Route::get('/getAllUserGoalsCompleted', [CertificateController::class, 'checkAllGoalCompletion'])->name('certificates.show');
+Route::get('/certificates/{filename}', [CertificateController::class, 'showCertificate']);
+Route::get('/getAllUserGoalsCompleted', [CertificateController::class, 'checkAllGoalCompletion']);
 
 Route::post('/phonepe-initiate', [PhonePeController::class, 'initiate']);
 
@@ -101,6 +89,7 @@ Route::middleware('admin','auth:sanctum')->group(function () {
 Route::post('/achievers', [AchieverController::class, 'store']);
 Route::put('/achievers/{achiever}', [AchieverController::class, 'update']);
 Route::delete('/achievers/{achiever}', [AchieverController::class, 'destroy']);
+
 Route::post('/make-user-paid', [AdminController::class, 'makeUserPaid']);
 Route::get('/getUsers',[AdminController::class,'getUsersWithUserRole']);
 Route::get('/getAllCertificate',[AdminController::class,'getAllCertificate']);

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Goals;
 use App\Models\Tests;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 
 class GoalController extends Controller
@@ -101,16 +101,23 @@ class GoalController extends Controller
      }
      
      public function goalName($goal) {
-        $goalData = Goals::where('id', $goal)->first(); 
-    
-        if (!$goalData) {
+        $cacheKey = "goal_description_{$goal}";
+        $description = Cache::remember($cacheKey, now()->addDays(30), function () use ($goal) {
+            $goalData = Goals::where('id', $goal)->first();
+            if (!$goalData) {
+                return null;
+            }
+            return $goalData->description;
+        });
+        
+        if (!$description) {
             return response()->json([
                 "error" => "Goal not found"
             ], 404);
         }
-    
+
         return response()->json([
-            "goal" => $goalData->description
+            "goal" => $description
         ]);
     }
 }
